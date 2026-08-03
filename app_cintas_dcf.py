@@ -89,27 +89,27 @@ def get_ctas_data():
         
         current_price = info.get('currentPrice')
         shares = info.get('sharesOutstanding')
-        cash = info.get('totalCash') or 289000000
-        debt = info.get('totalDebt') or 2705000000
-        revenue = info.get('totalRevenue') or 11260000000 # fallback baseline
+        cash = info.get('totalCash') or 289017984
+        debt = info.get('totalDebt') or 2705957120
+        revenue = info.get('totalRevenue') or 11264760832 # fallback baseline
         
         if current_price is None:
             try:
                 hist = ticker.history(period="1d")
                 current_price = hist['Close'].iloc[0]
             except:
-                 current_price = 204.32
+                 current_price = 204.33
                  
         if shares is None or shares == 0:
             shares = 400147000
             
     except Exception as e:
         # Graceful fallback if yfinance is rate-limited (common on Streamlit Cloud)
-        current_price = 204.32
+        current_price = 204.33
         shares = 400147000
-        cash = 289000000
-        debt = 2705000000
-        revenue = 11260000000
+        cash = 289017984
+        debt = 2705957120
+        revenue = 11264760832
 
     return {
         'price': float(current_price),
