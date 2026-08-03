@@ -81,25 +81,35 @@ terminal_roic = st.sidebar.slider("Terminal ROIC (%)", 10.0, 40.0, 27.0, 1.0) / 
 terminal_growth = st.sidebar.slider("Terminal Growth Rate (%)", 1.0, 5.0, 2.5, 0.1) / 100.0
 
 # --- DATA FETCHING ---
+@st.cache_data(ttl=3600)
 def get_ctas_data():
-    ticker = yf.Ticker("CTAS")
-    info = ticker.info
-    
-    current_price = info.get('currentPrice')
-    shares = info.get('sharesOutstanding')
-    cash = info.get('totalCash') or 289000000
-    debt = info.get('totalDebt') or 2705000000
-    revenue = info.get('totalRevenue') or 11260000000 # fallback baseline
-    
-    if current_price is None:
-        try:
-            hist = ticker.history(period="1d")
-            current_price = hist['Close'].iloc[0]
-        except:
-             current_price = 700.0
-             
-    if shares is None or shares == 0:
+    try:
+        ticker = yf.Ticker("CTAS")
+        info = ticker.info
+        
+        current_price = info.get('currentPrice')
+        shares = info.get('sharesOutstanding')
+        cash = info.get('totalCash') or 289000000
+        debt = info.get('totalDebt') or 2705000000
+        revenue = info.get('totalRevenue') or 11260000000 # fallback baseline
+        
+        if current_price is None:
+            try:
+                hist = ticker.history(period="1d")
+                current_price = hist['Close'].iloc[0]
+            except:
+                 current_price = 204.32
+                 
+        if shares is None or shares == 0:
+            shares = 400147000
+            
+    except Exception as e:
+        # Graceful fallback if yfinance is rate-limited (common on Streamlit Cloud)
+        current_price = 204.32
         shares = 400147000
+        cash = 289000000
+        debt = 2705000000
+        revenue = 11260000000
 
     return {
         'price': float(current_price),
