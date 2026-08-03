@@ -755,7 +755,7 @@ with tab6:
 
     st.subheader("📊 Peer Group Trading Comps (Relative Valuation)")
     
-    @st.cache_data
+    @st.cache_data(ttl=3600)
     def get_forward_pe_data():
         try:
             ctas = yf.Ticker("CTAS").info.get('forwardPE', 0)
@@ -765,9 +765,14 @@ with tab6:
             spy = yf.Ticker("SPY").info.get('forwardPE', 21.0)
             if spy == 0:
                  spy = 21.0
+                 
+            # Fallback check just in case Yahoo returns a weird value post-split
+            if ctas == 0 or ctas > 100:
+                ctas = 33.4
+                 
             return {"CTAS": ctas, "UNF": unf, "ARMK": armk, "VSTS": vsts, "S&P 500": spy}
         except:
-            return {"CTAS": 45.0, "UNF": 25.0, "ARMK": 17.0, "VSTS": 18.0, "S&P 500": 21.0}
+            return {"CTAS": 33.4, "UNF": 25.0, "ARMK": 17.0, "VSTS": 18.0, "S&P 500": 21.0}
 
     pe_data = get_forward_pe_data()
 
